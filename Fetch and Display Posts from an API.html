@@ -1,0 +1,302 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Posts List with Themes, Expand All, and Animations</title>
+  <style>
+    /* CSS Custom Properties for Themes */
+    :root {
+      --bg-color: #ffffff;
+      --text-color: #333333;
+      --border-color: #dddddd;
+      --button-bg: #4CAF50;
+      --button-hover: #45a049;
+      --post-bg: #f8f8f8;
+    }
+    [data-theme="dark"] {
+      --bg-color: #1a1a1a;
+      --text-color: #e0e0e0;
+      --border-color: #444444;
+      --button-bg: #2c3e50;
+      --button-hover: #34495e;
+      --post-bg: #2a2a2a;
+    }
+    [data-theme="nature"] {
+      --bg-color: #f0fff4;
+      --text-color: #1a3b29;
+      --border-color: #a3d9b2;
+      --button-bg: #38a169;
+      --button-hover: #2f855a;
+      --post-bg: #e6ffed;
+    }
+    [data-theme="vintage"] {
+      --bg-color: #fdf6e3;
+      --text-color: #586e75;
+      --border-color: #93a1a1;
+      --button-bg: #cb4b16;
+      --button-hover: #b83b0a;
+      --post-bg: #eee8d5;
+    }
+    [data-theme="neon"] {
+      --bg-color: #0a0a0a;
+      --text-color: #00ff9d;
+      --border-color: #ff00ff;
+      --button-bg: #ff00ff;
+      --button-hover: #cc00cc;
+      --post-bg: #1a1a1a;
+    }
+    
+    /* Base Styles */
+    body {
+      background-color: var(--bg-color);
+      color: var(--text-color);
+      margin: 0;
+      padding-top: 70px; /* leave space for fixed theme toggle */
+      transition: all 0.3s ease;
+      font-family: Arial, sans-serif;
+    }
+    
+    /* Posts List */
+    #postList {
+      list-style-type: none;
+      padding: 0;
+      max-width: 800px;
+      margin: 20px auto;
+    }
+    .post-item {
+      margin-bottom: 10px;
+      border: 1px solid var(--border-color);
+      padding: 10px;
+      border-radius: 5px;
+      background-color: var(--post-bg);
+      transition: all 0.3s ease;
+      position: relative;
+      /* Animate post items as they load */
+      animation: fadeInUp 0.5s ease forwards;
+    }
+    .post-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+    .post-title {
+      font-weight: bold;
+      margin-right: 15px;
+    }
+    .expand-btn {
+      background: none;
+      border: none;
+      cursor: pointer;
+      color: var(--text-color);
+      font-size: 1.2em;
+      padding: 5px;
+      transition: transform 0.3s ease;
+    }
+    .expand-btn:hover {
+      transform: scale(1.1);
+    }
+    /* Animate post body expansion using max-height and opacity */
+    .post-body {
+      margin-top: 10px;
+      padding: 0 10px;
+      border-left: 3px solid var(--border-color);
+      overflow: hidden;
+      max-height: 0;
+      opacity: 0;
+      background-color: rgba(0, 0, 0, 0.05);
+      transition: max-height 0.5s ease, opacity 0.5s ease, padding 0.5s ease;
+    }
+    .post-body.visible {
+      max-height: 500px;
+      opacity: 1;
+      padding: 10px;
+    }
+    
+    /* Keyframes for fadeInUp animation */
+    @keyframes fadeInUp {
+      from {
+        opacity: 0;
+        transform: translateY(20px);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+    
+    /* Fixed Buttons */
+    .fixed-btn {
+      position: fixed;
+      padding: 12px 24px;
+      border: none;
+      border-radius: 25px;
+      cursor: pointer;
+      transition: all 0.3s;
+      z-index: 1000;
+      background-color: var(--button-bg);
+      color: white;
+      box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+    }
+    /* Theme Toggle button remains at top-right */
+    #themeToggle {
+      top: 20px;
+      right: 20px;
+    }
+    /* Expand All button is now fixed at bottom-left */
+    #expandAll {
+      bottom: 20px;
+      left: 20px;
+    }
+    /* Scroll Up button remains at bottom-right */
+    #scrollUp {
+      bottom: 20px;
+      right: 20px;
+      opacity: 0;
+      transform: translateY(20px);
+      transition: opacity 0.3s, transform 0.3s;
+    }
+    #scrollUp.visible {
+      opacity: 1;
+      transform: translateY(0);
+    }
+    .fixed-btn:hover {
+      background-color: var(--button-hover);
+      transform: scale(1.05);
+    }
+    .l{
+padding-left: 20px;
+    }
+    @media (max-width: 900px) {
+        .l{
+            padding-left:  0px;
+               }
+    }
+  </style>
+</head>
+<body data-theme="light">
+  <!-- Fixed Theme Toggle Button (Top Right) -->
+  <button class="fixed-btn" id="themeToggle">🌗 Theme</button>
+  
+  <h1 class="l">Posts List</h1>
+  <!-- Posts will be added to this list -->
+  <ul id="postList"></ul>
+  
+  <!-- Fixed Expand All Button (Bottom Left) -->
+  <button class="fixed-btn" id="expandAll">Expand All</button>
+  
+  <!-- Fixed Scroll Up Button (Bottom Right) -->
+  <button class="fixed-btn" id="scrollUp">⬆️ Top</button>
+  
+  <script>
+    document.addEventListener('DOMContentLoaded', function() {
+      // Define available themes
+      const themes = ['light', 'dark', 'nature', 'vintage', 'neon'];
+      let currentThemeIndex = 0;
+      
+      // Get saved theme from localStorage or default to 'light'
+      const savedTheme = localStorage.getItem('theme') || 'light';
+      currentThemeIndex = themes.indexOf(savedTheme);
+      document.body.dataset.theme = savedTheme;
+      
+      // References to fixed buttons
+      const themeToggle = document.getElementById('themeToggle');
+      const expandAllButton = document.getElementById('expandAll');
+      const scrollUp = document.getElementById('scrollUp');
+      
+      // Function to return theme icon
+      function getThemeIcon(theme) {
+        const icons = {
+          light: '🌞',
+          dark: '🌚',
+          nature: '🌿',
+          vintage: '🖼️',
+          neon: '🌈'
+        };
+        return icons[theme] || '🌓';
+      }
+      
+      // Set initial theme button label
+      themeToggle.innerHTML = `${getThemeIcon(savedTheme)} ${savedTheme.charAt(0).toUpperCase() + savedTheme.slice(1)}`;
+      
+      // Change Theme functionality
+      themeToggle.addEventListener('click', () => {
+        currentThemeIndex = (currentThemeIndex + 1) % themes.length;
+        const selectedTheme = themes[currentThemeIndex];
+        document.body.dataset.theme = selectedTheme;
+        localStorage.setItem('theme', selectedTheme);
+        themeToggle.innerHTML = `${getThemeIcon(selectedTheme)} ${selectedTheme.charAt(0).toUpperCase() + selectedTheme.slice(1)}`;
+      });
+      
+      // Create and populate posts list
+      fetch('https://jsonplaceholder.typicode.com/posts')
+        .then(response => response.json())
+        .then(posts => {
+          const ul = document.getElementById('postList');
+          posts.forEach(post => {
+            const li = document.createElement('li');
+            li.className = 'post-item';
+            
+            // Create header for post (title and individual expand button)
+            const header = document.createElement('div');
+            header.className = 'post-header';
+            
+            const title = document.createElement('div');
+            title.className = 'post-title';
+            title.textContent = post.title;
+            
+            const expandBtn = document.createElement('button');
+            expandBtn.className = 'expand-btn';
+            expandBtn.innerHTML = '&#9660;'; // down arrow
+            
+            // Create post body (hidden by default)
+            const body = document.createElement('div');
+            body.className = 'post-body';
+            body.textContent = post.body;
+            
+            // Toggle individual post expansion
+            expandBtn.addEventListener('click', () => {
+              body.classList.toggle('visible');
+              expandBtn.innerHTML = body.classList.contains('visible') ? '&#9650;' : '&#9660;';
+            });
+            
+            header.appendChild(title);
+            header.appendChild(expandBtn);
+            li.appendChild(header);
+            li.appendChild(body);
+            ul.appendChild(li);
+          });
+        })
+        .catch(error => console.error('Error:', error));
+      
+      // Expand All functionality
+      let allExpanded = false;
+      expandAllButton.addEventListener('click', () => {
+        const bodies = document.querySelectorAll('.post-body');
+        const expandButtons = document.querySelectorAll('.expand-btn');
+        if (!allExpanded) {
+          bodies.forEach(body => body.classList.add('visible'));
+          expandButtons.forEach(btn => btn.innerHTML = '&#9650;');
+          expandAllButton.textContent = 'Close All';
+          allExpanded = true;
+        } else {
+          bodies.forEach(body => body.classList.remove('visible'));
+          expandButtons.forEach(btn => btn.innerHTML = '&#9660;');
+          expandAllButton.textContent = 'Expand All';
+          allExpanded = false;
+        }
+      });
+      
+      // Scroll Up functionality
+      window.addEventListener('scroll', () => {
+        if (window.scrollY > 300) {
+          scrollUp.classList.add('visible');
+        } else {
+          scrollUp.classList.remove('visible');
+        }
+      });
+      scrollUp.addEventListener('click', () => {
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+      });
+    });
+  </script>
+</body>
+</html>
