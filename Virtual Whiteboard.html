@@ -1,0 +1,27 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Virtual Whiteboard</title>
+    <link rel="stylesheet" href="Virtual Whiteboard.css">
+</head>
+<body>
+    <div class="toolbar">
+         <!-- Back Button -->
+    <button class="back-btn" onclick="goBack()">← Back</button>
+        <button onclick="undo()">↩️ Undo</button>
+        <button onclick="redo()">↪️ Redo</button>
+        <input type="color" id="colorPicker" onchange="changeColor(this.value)">
+        <input type="range" id="thickness" min="1" max="10" value="3" onchange="changeThickness(this.value)">
+        <button onclick="clearCanvas()">🗑️ Clear</button>
+        <button onclick="downloadCanvas()">📥 Save</button>
+        <button onclick="toggleEraser()">🧽 Eraser</button>
+        <button onclick="toggleDarkMode()">🌙 Mode</button>
+    </div>
+
+    <canvas id="whiteboard"></canvas>
+
+    <script src="Virtual Whiteboard.js"></script>
+</body>
+</html>
