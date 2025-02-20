@@ -1,0 +1,61 @@
+/* General Styles */
+body {
+    font-family: 'Arial', sans-serif;
+    background: linear-gradient(135deg, #222, #111);
+    color: white;
+    text-align: center;
+    padding: 20px;
+}
+
+/* Back Button */
+.back-btn {
+    position: fixed;
+    top: 10px;
+    left: 10px;
+    padding: 10px 15px;
+    background: red;
+    color: white;
+    border: none;
+    border-radius: 20px;
+    cursor: pointer;
+}
+
+/* Theme Selector */
+.theme-selector, .language-selector {
+    margin: 15px auto;
+}
+
+/* Joke Box */
+.joke-box {
+    background: rgba(255, 255, 255, 0.1);
+    padding: 20px;
+    border-radius: 10px;
+    margin: 20px auto;
+    width: 80%;
+    font-size: 1.2rem;
+}
+
+/* Buttons */
+button {
+    padding: 10px 20px;
+    border-radius: 25px;
+    border: none;
+    cursor: pointer;
+    transition: 0.3s ease;
+}
+
+/* Different Themes */
+.light {
+    background: #f0f0f0;
+    color: #333;
+}
+
+.dark {
+    background: #111;
+    color: white;
+}
+
+.fun {
+    background: linear-gradient(45deg, #ff6b6b, #4ecdc4);
+    color: white;
+}
